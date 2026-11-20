@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>요구사항 이력</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; max-width: 760px; margin: 0 auto; padding: 16px; }
+  section { border-top: 1px solid #ccc; padding: 12px 0; }
+  li { margin: 4px 0; }
+  .muted { color: #666; }
+  #error { color: #b00020; }
+</style>
+<script src="config.js" onerror="this.remove()"></script>
+</head>
+<body>
+<h1>요구사항 이력</h1>
+<p id="error" role="alert"></p>
+
+<section aria-labelledby="new-h">
+  <h2 id="new-h">새 항목</h2>
+  <form id="new">
+    <label>제목 <input name="title" required></label>
+    <label>본문 <textarea name="body"></textarea></label>
+    <button>저장</button>
+  </form>
+</section>
+
+<section aria-labelledby="list-h">
+  <h2 id="list-h">요구사항 목록</h2>
+  <ul id="list"></ul>
+</section>
+
+<section aria-labelledby="edit-h">
+  <h2 id="edit-h">편집</h2>
+  <form id="edit">
+    <label>항목 번호 <input name="id" type="number" min="1" required></label>
+    <label>새 문구 <textarea name="body"></textarea></label>
+    <label>변경 이유 <input name="reason"></label>
+    <button>저장</button>
+  </form>
+</section>
+
+<section aria-labelledby="hist-h">
+  <h2 id="hist-h">변경 이력</h2>
+  <form id="hist">
+    <label>항목 번호 <input name="id" type="number" min="1" required></label>
+    <button>보기</button>
+  </form>
+  <ol id="history"></ol>
+  <pre id="at" aria-live="polite"></pre>
+</section>
+
+<script type="module">
+import { createStore } from './store.js';
+import { load, save } from './db.js';
+
+const cfg = window.SEEDUP_DB;
+const $ = (id) => document.getElementById(id);
+const err = (e) => { $('error').textContent = e ? e.message : ''; };
+let store;
+
+function renderList() {
+  $('list').replaceChildren(...store.list().map((r) => {
+    const li = document.createElement('li');
+    li.textContent = `#${r.id} ${r.title} [${r.status}] — ${r.currentBody}`;
+    return li;
+  }));
+}
+
+function renderHistory(id) {
+  const rows = store.history(id);
+  $('at').textContent = '';
+  if (!rows.length) { $('history').replaceChildren(Object.assign(document.createElement('li'), { textContent: '변경 이력 없음' })); return; }
+  $('history').replaceChildren(...rows.map((l) => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = `${l.changedAt} · ${l.reason} · ${l.newBody}`;
+    b.onclick = () => { $('at').textContent = store.bodyAt(id, l.id); };
+    li.append(b);
+    return li;
+  }));
+}
+
+async function act(fn) {
+  try { err(); fn(); await save(cfg, store.state); renderList(); } catch (e) { err(e); }
+}
+
+$('new').onsubmit = (e) => { e.preventDefault(); const f = e.target; act(() => { store.create(f.title.value, f.body.value); f.reset(); }); };
+$('edit').onsubmit = (e) => { e.preventDefault(); const f = e.target; act(() => store.update(f.id.value, f.body.value, f.reason.value)); };
+$('hist').onsubmit = (e) => { e.preventDefault(); renderHistory(e.target.id.value); };
+
+try { store = createStore(await load(cfg)); renderList(); } catch (e) { store = createStore(); err(e); }
+</script>
+</body>
+</html>
