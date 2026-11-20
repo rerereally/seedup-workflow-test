@@ -20,8 +20,9 @@ export function createStore(state = { reqs: [], logs: [] }, now = () => new Date
     return req;
   }
 
-  // Newest first; ties keep reverse insertion order.
-  const history = (id) => state.logs.filter((l) => l.requirementId === Number(id)).reverse();
+  // Newest changedAt first; equal times fall back to the later log id.
+  const history = (id) => state.logs.filter((l) => l.requirementId === Number(id))
+    .sort((a, b) => b.changedAt.localeCompare(a.changedAt) || b.id - a.id);
 
   function bodyAt(id, logId) {
     const log = history(id).find((l) => l.id === Number(logId));

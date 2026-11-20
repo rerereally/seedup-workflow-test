@@ -24,6 +24,14 @@ test('F-02: picking a history row returns the body at that point', () => {
   assert.equal(s.bodyAt(1, older.id), 'B');
 });
 
+test('F-02: order follows changedAt even when stored out of order', () => {
+  const s = createStore({ reqs: [{ id: 1, title: 't', currentBody: 'C', status: '활성', createdAt: 'x' }], logs: [
+    { id: 1, requirementId: 1, previousBody: 'B', newBody: 'C', reason: 'r2', changedAt: '2026-01-02T00:00:00.000Z' },
+    { id: 2, requirementId: 1, previousBody: 'A', newBody: 'B', reason: 'r1', changedAt: '2026-01-01T00:00:00.000Z' },
+  ] });
+  assert.deepEqual(s.history(1).map((l) => l.newBody), ['C', 'B']);
+});
+
 test('F-02: no history yields an empty list', () => {
   const s = createStore();
   s.create('x');
