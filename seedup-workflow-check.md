@@ -1,10 +1,10 @@
 # Seedup 워크플로우 점검 보고서
 
 - 클라이언트: Claude Code 2.1.233 (데스크톱 앱 Code 탭, 모델 Opus 5.5)
-- Seedup main 커밋: 기록하지 않음 (사람이 생략하기로 함)
+- Seedup main 커밋: `c7c394a6d85cdb06238e14c1752d9dace5cc715d` (rerereally/Seedup_ver2 main, 2026-11-20 15:49 UTC, PR #199 병합. 에이전트가 GitHub에서 확인)
 - 시작 시각: 2026-11-21 00:33 KST (1차 세션), 00:42 KST (2차 세션), 00:49 KST (3차 세션)
-- 테스트 위치: `/Users/jeongjihun/Desktop/테스트 폴더` (git 아님, GitHub 원격 없음)
-- MCP 타임아웃 설정: `MCP_TOOL_TIMEOUT` 없음 (터미널 탭에서 export했지만 실행 중인 세션에는 적용되지 않음)
+- 테스트 위치: `/Users/jeongjihun/Desktop/테스트 폴더` → 3차 세션에서 공개 저장소 `rerereally/seedup-workflow-test`로 만듦 (초기 커밋 f30ef3b)
+- MCP 타임아웃 설정: 3차 세션에서 `~/.claude/settings.json`의 `env`에 `MCP_TOOL_TIMEOUT=180000` 추가. 새 세션부터 적용
 
 ## 1. 요약
 
@@ -67,4 +67,5 @@
 | --- | --- |
 | prd:<id> | 없음 (저장되지 않음) |
 | 결정·인계·진행 기록·커밋 연결·검증 기록 | 없음 |
-| 로컬 파일 | 이 보고서 1개 |
+| GitHub 저장소 | rerereally/seedup-workflow-test (공개, README와 이 보고서) |
+| 로컬 파일 | 이 보고서, README.md |
