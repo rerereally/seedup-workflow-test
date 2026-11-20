@@ -20,6 +20,20 @@ export function createStore(state = { reqs: [], logs: [] }, now = () => new Date
     return req;
   }
 
+  // Delete is a status mark: the item and its history stay. Same-status commands change nothing.
+  function setStatus(id, status) {
+    const req = get(id);
+    if (!req) throw new Error('항목 없음');
+    if (req.status === status) return req;
+    req.status = status;
+    if (status !== '삭제됨') return req;
+    const reason = '삭제';
+    state.logs.push({ id: nextLog++, requirementId: req.id, previousBody: req.currentBody, newBody: req.currentBody, reason, status, changedAt: now() });
+    return req;
+  }
+  const remove = (id) => setStatus(id, '삭제됨');
+  const restore = (id) => setStatus(id, '활성');
+
   // Newest changedAt first; equal times fall back to the later log id.
   const history = (id) => state.logs.filter((l) => l.requirementId === Number(id))
     .sort((a, b) => b.changedAt.localeCompare(a.changedAt) || b.id - a.id);
@@ -29,5 +43,5 @@ export function createStore(state = { reqs: [], logs: [] }, now = () => new Date
     return log ? log.newBody : null;
   }
 
-  return { state, get, list: () => state.reqs, create, update, history, bodyAt };
+  return { state, get, list: () => state.reqs, create, update, remove, restore, history, bodyAt };
 }

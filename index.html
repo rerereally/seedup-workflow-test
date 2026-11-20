@@ -63,7 +63,12 @@ let store;
 function renderList() {
   $('list').replaceChildren(...store.list().map((r) => {
     const li = document.createElement('li');
-    li.textContent = `#${r.id} ${r.title} [${r.status}] — ${r.currentBody}`;
+    li.textContent = `#${r.id} ${r.title} [${r.status}] — ${r.currentBody} `;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = r.status === '삭제됨' ? '되살리기' : '삭제';
+    b.onclick = () => act(() => (r.status === '삭제됨' ? store.restore(r.id) : store.remove(r.id)));
+    li.append(b);
     return li;
   }));
 }

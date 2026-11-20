@@ -37,3 +37,13 @@ test('F-02: no history yields an empty list', () => {
   s.create('x');
   assert.deepEqual(s.history(1), []);
 });
+
+test('F-01: delete marks 삭제됨 and keeps history', () => {
+  const s = createStore(undefined, clock());
+  s.create('결제 취소', 'A');
+  s.update(1, 'B', '범위 축소');
+  s.remove(1);
+  assert.equal(s.list()[0].status, '삭제됨');
+  assert.equal(s.list().length, 1);
+  assert.ok(s.history(1).some((l) => l.newBody === 'B' && l.reason === '범위 축소'));
+});
